@@ -72,6 +72,40 @@ app.post("/articles/add", (req, res) => {
   });
 });
 
+//Edit Single Article
+app.get("/article/edit/:id", (req, res) => {
+  Article.findById(req.params.id, (err, article)=>{
+    res.render('edit_article', {title: 'Edit Article', article: article})
+  })
+})
+
+//Update Submit POST Route
+app.post("/article/edit/:id", (req, res) => {
+  let article = {};
+
+  article.title = req.body.title;
+  article.author = req.body.author;
+  article.body = req.body.body;
+
+  let query = {_id:req.params.id}
+
+  Article.update(query, article, (err) => {
+    if (err) {
+      console.log(err);
+      return;
+    } else {
+      res.redirect('/');
+    }
+  });
+});
+
+//Get Single Article
+app.get("/article/:id", (req, res) => {
+  Article.findById(req.params.id, (err, article)=>{
+    res.render('article', {article: article})
+  })
+})
+
 //Call Listen Function
 //Start Server
 app.listen(3000, () => {
