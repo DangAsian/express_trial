@@ -1,7 +1,10 @@
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
+const expressValidator = require("express-validator");
+const flash = require("connect-flash");
+const session = require("express-session");
 
 mongoose.connect("mongodb://localhost/nodekb");
 let db = mongoose.connection;
@@ -34,6 +37,30 @@ app.use(bodyParser.json());
 
 //Set Public Folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+//Express Session middlewear
+
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+}))
+//Express Message MiddleWear
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+//Express Validator
+app.use(express.json());
+app.post('/user', (req, res) => {
+  User.create({
+    username: req.body.username,
+    password: req.body.password
+  }).then(user => res.json(user));
+});
 
 //Routes
 //Home Route
@@ -94,6 +121,7 @@ app.post("/article/edit/:id", (req, res) => {
       console.log(err);
       return;
     } else {
+      req.flash('success', 'Article Updated')
       res.redirect('/');
     }
   });
