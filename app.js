@@ -84,7 +84,17 @@ app.get("/articles/add", (req, res) => {
 
 //Add Submit POST Route
 app.post("/articles/add", (req, res) => {
-  console.log(req.body)
+  req.checkBody('title', 'Title is required').notEmpty();
+  req.checkBody('author', 'Author is required').notEmpty();
+  req.checkBody('body', 'Body is required').notEmpty();
+  // Get Errors
+  let errors = req.validationErrors();
+
+  if(errors) {
+    res.render('add_article'), {
+
+    }
+  }
   let article = new Article();
   article.title = req.body.title;
   article.author = req.body.author;
@@ -108,6 +118,7 @@ app.get("/article/edit/:id", (req, res) => {
 
 //Update Submit POST Route
 app.post("/article/edit/:id", (req, res) => {
+
   let article = {};
 
   article.title = req.body.title;
@@ -121,7 +132,7 @@ app.post("/article/edit/:id", (req, res) => {
       console.log(err);
       return;
     } else {
-      req.flash('success', 'Article Updated')
+      req.flash('danger', 'Article Updated')
       res.redirect('/');
     }
   });
